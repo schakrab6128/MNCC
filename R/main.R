@@ -2,7 +2,8 @@
     #Based on Champ and Jones(2004), Rose and Does(1995)
 ####################################################################################################################################################
 require(mvtnorm)
-require(adehabitatLT)
+#require(adehabitatLT)
+dchi <- adehabitatLT::dchi
 ####################################################################################################################################################
 
 #source('https://raw.githubusercontent.com/bolus123/Statistical-Process-Control/master/MKLswitch.R')

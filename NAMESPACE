@@ -1,7 +1,8 @@
 import('mvtnorm')
-import('adehabitatLT')
 
-importFrom("stats", "dchisq", "integrate", "uniroot")
+importFrom('adehabitatLT', 'dchi')
+
+importFrom("stats", "integrate", "uniroot")
 importFrom("graphics", "axis", "plot", "points", "text")
 importFrom("stats", "var")
 
