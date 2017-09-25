@@ -1,0 +1,7 @@
+import('mvtnorm')
+
+importFrom("stats", "dchisq", "integrate", "uniroot")
+importFrom("graphics", "axis", "plot", "points", "text")
+importFrom("stats", "var")
+
+export('MNCC', 'MNCC.data', 'get.cc')
