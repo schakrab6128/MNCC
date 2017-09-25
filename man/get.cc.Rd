@@ -10,6 +10,7 @@ get.cc(
             ,alternative = '2-sided'
             ,maxiter = 10000
             ,method = 'direct'
+            ,indirect.interval = c(1, 7)
             ,indirect.subdivisions = 100L
             ,indirect.tol = .Machine$double.eps^0.25
 
@@ -24,8 +25,9 @@ get.cc(
   \item{alternative}{ 2-sided - equal-limits applied in the calculation; 1-sided - only upper limit involved }
   \item{maxiter}{ maximum iteration of computation in mvtnorm }
   \item{method}{ direct - multivariate t distribution(much faster), indirect - multivariate normal distribution with integration over a random variable from chisq(much slower but compatible when degrees of freedom is not a integer)}
-  \item{indirect.subdivisions}{ subdivision for integrating a chisq random variable }
-  \item{indirect.tol}{ tolerance for integrating a chisq random variable }
+  \item{indirect.interval}{ The interval for limiting integration }
+  \item{indirect.subdivisions}{ subdivision for integrating a chi random variable }
+  \item{indirect.tol}{ tolerance for integrating a chi random variable }
 
 }
 \description{

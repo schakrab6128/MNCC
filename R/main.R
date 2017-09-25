@@ -186,6 +186,7 @@ get.cc.mvn <- function(
                  ,Phase1 = TRUE
                  ,off.diag = NULL
                  ,alternative = '2-sided'
+                 ,interval = c(1, 7)
                  ,maxiter = 10000
                  ,subdivisions = 2000
                  ,tol = 1e-2
@@ -221,7 +222,7 @@ get.cc.mvn <- function(
 
         K <- uniroot(
                 root.mvn.F,
-                interval = c(1, 7),
+                interval = interval,
                 m = m,
                 nu = nu,
                 #Y = Y,
@@ -255,6 +256,7 @@ get.cc <- function(
             ,alternative = '2-sided'
             ,maxiter = 10000
             ,method = 'direct'
+            ,indirect.interval = c(1, 7)
             ,indirect.subdivisions = 100L
             ,indirect.tol = .Machine$double.eps^0.25
 
@@ -293,6 +295,7 @@ get.cc <- function(
             ,Phase1 = Phase1
             ,off.diag = off.diag
             ,alternative = alternative
+            ,interval = indirect.interval
             #,maxsim = indirect.maxsim
             ,subdivisions = indirect.subdivisions
             ,maxiter = maxiter
@@ -359,10 +362,11 @@ MNCC <- function(
 			off.diag = NULL,
 			alternative = '2-sided',
 			plot.option = TRUE,
-            maxiter = 10000,
-            method = 'direct',
-            indirect.subdivisions = 100L,
-            indirect.tol = .Machine$double.eps^0.25
+      maxiter = 10000,
+      method = 'direct',
+			indirect.interval = c(1, 7),
+      indirect.subdivisions = 100L,
+      indirect.tol = .Machine$double.eps^0.25
 ) {
 
 
@@ -375,7 +379,17 @@ MNCC <- function(
 
 	sigma.v <- sqrt(sum(apply(X, 1, var)) / m) / c4.f(m * (n - 1))
 
-	k <- get.cc(m, m * (n - 1), 0.05)$K
+	k <- get.cc(m,
+	            m * (n - 1),
+	            FAP,
+	            off.diag,
+	            alternative,
+	            maxiter,
+	            method,
+	            indirect.interval,
+	            indirect.subdivisions,
+	            indirect.tol
+	     )$K
 
 	LCL <- X.bar.bar - k * sigma.v / sqrt(n)
 	UCL <- X.bar.bar + k * sigma.v / sqrt(n)

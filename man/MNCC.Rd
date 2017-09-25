@@ -10,6 +10,7 @@ MNCC(
 			plot.option = TRUE,
       maxiter = 10000,
       method = 'direct',
+      indirect.interval = c(1, 7),
       indirect.subdivisions = 100L,
       indirect.tol = .Machine$double.eps^0.25
 )
@@ -22,6 +23,7 @@ MNCC(
   \item{plot.option}{TRUE - draw a plot for the process; FALSE - Not draw a plot for the process}
   \item{maxiter}{ maximum iteration of computation in mvtnorm }
   \item{method}{ direct - multivariate t distribution(much faster), indirect - multivariate normal distribution with integration over a random variable from chisq(much slower but compatible when degrees of freedom is not a integer)}
+  \item{indirect.interval}{ The interval for limiting integration }
   \item{indirect.subdivisions}{ subdivision for integrating a chisq random variable }
   \item{indirect.tol}{ tolerance for integrating a chisq random variable }
 
