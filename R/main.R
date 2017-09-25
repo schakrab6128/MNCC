@@ -1,8 +1,8 @@
-####################################################################################################################################################   
+####################################################################################################################################################
     #Based on Champ and Jones(2004), Rose and Does(1995)
 ####################################################################################################################################################
 require(mvtnorm)
-#library(adehabitatLT)
+require(adehabitatLT)
 ####################################################################################################################################################
 
 #source('https://raw.githubusercontent.com/bolus123/Statistical-Process-Control/master/MKLswitch.R')
@@ -19,16 +19,16 @@ corr.f <- function(m, off.diag = - 1 / (m - 1)){
     crr[which(crr == 0)] <- off.diag
 
     crr
-    
+
 }
 
 first.der.c4.f <- function(nu){
 
     beta.part <- (beta(nu / 2, 1 / 2)) ^ (-1)
-    
+
     digamma1 <- digamma(nu / 2)
     digamma2 <- digamma(nu / 2 + 1 / 2)
-    
+
     - sqrt(2 * pi) / 2 * beta.part * ((digamma1 - digamma2) / sqrt(nu) + nu ^ (- 3 /2))
 
 }
@@ -51,7 +51,7 @@ cons.f <- function(nu, tau){
 ####################################################################################################################################################
 
 get.cc.mvt <- function(
-                 m 
+                 m
                  ,nu
                  ,FAP = 0.1
                  ,Phase1 = TRUE
@@ -60,44 +60,44 @@ get.cc.mvt <- function(
                  ,maxiter = 10000
 
 ){
-                                                                              #The purpose of this function is 
+                                                                              #The purpose of this function is
     MCMC <- FALSE                                                             #to obtain L and K based on
                                                                               #multivariate T.
                                                                               #MCMC part is not available now.
 
     #if (off.diag == NULL) off.diag <- ifelse(Phase1 == TRUE, - 1 /(m - 1), 1 / (m + 1))
-    
+
     corr.P <- corr.f(m = m, off.diag = off.diag)                              #get correlation matrix with equal correlations
 
     pu <- 1 - FAP
-    
+
     if (MCMC == TRUE) {
         #MVN.Q.Gibbs.Sampling(
-        #    pu, 
-        #    MCMC.maxsim, 
-        #    corr.P, 
-        #    tails = alternative, 
-        #    burn = MCMC.burn, 
+        #    pu,
+        #    MCMC.maxsim,
+        #    corr.P,
+        #    tails = alternative,
+        #    burn = MCMC.burn,
         #    search.interval = MCMC.search.interval
         #)
-    
-        
-    
+
+
+
     } else {
- 
+
         L <- ifelse(
                 alternative == '2-sided',
                 qmvt(pu, df = nu, sigma = corr.P, tail = 'both.tails', maxiter = maxiter)$quantile,
                 qmvt(pu, df = nu, sigma = corr.P, maxiter = maxiter)$quantile
             )
                                                       #get L by multivariate T
-        
+
 
     }
-    
-    
+
+
     K <- L * c4.f(nu) * sqrt((m - 1) / m)             #get K
-   
+
     list(L = L, K = K)
 
 }
@@ -111,26 +111,26 @@ joint.pdf.mvn.chisq <- function(Y, K, m, nu, sigma, alternative = '2-sided') {
     s <- length(Y)
 
     L <- K / sqrt((m - 1) / m * nu) * Y / c4.f(nu)
-    
+
     dpp <- lapply(
             1:s,
             function(i){
 
                 LL <- rep(L[i], m)
-                
+
                 ifelse(
                     alternative == '2-sided',
                     pmvnorm(lower = -LL, upper = LL, sigma = sigma),
                     pmvnorm(lower = rep(-Inf, m), upper = LL, sigma = sigma)
                 )
-            
-            } 
-    
-    )    
+
+            }
+
+    )
 
     dpp <- unlist(dpp)
-    
-    dpp * dchisq(sqrt(Y), df = nu)
+
+    dpp * dchi(Y, df = nu)
 
 
 }
@@ -146,33 +146,33 @@ root.mvn.F <- function(K, m, nu, sigma, pu, alternative = '2-sided', subdivision
     #pp <- lapply(
     #        1:s,
     #        function(i){
-    #        
+    #
     #            LL <- rep(L[i], m)
     #            ifelse(
     #                alternative == '2-sided',
     #                pmvnorm(lower = -LL, upper = LL, sigma = sigma),
     #                pmvnorm(lower = rep(-Inf, m), upper = LL, sigma = sigma)
     #            )
-    #        
-    #        } 
+    #
+    #        }
     #
     #)
     #
     #pp <- mean(unlist(pp))
-    
+
     pp <- integrate(
-            joint.pdf.mvn.chisq, 
-            lower = 0, 
-            upper = Inf, 
-            K = K, 
-            m = m, 
-            nu = nu, 
-            sigma = sigma, 
-            alternative = alternative, 
-            subdivisions = subdivisions, 
+            joint.pdf.mvn.chisq,
+            lower = 0,
+            upper = Inf,
+            K = K,
+            m = m,
+            nu = nu,
+            sigma = sigma,
+            alternative = alternative,
+            subdivisions = subdivisions,
             rel.tol = rel.tol
         )$value
-    
+
     pu - pp
 
 
@@ -188,34 +188,34 @@ get.cc.mvn <- function(
                  ,alternative = '2-sided'
                  ,maxiter = 10000
                  ,subdivisions = 2000
-                 ,tol = 1e-2 
+                 ,tol = 1e-2
 
-){                                                          #The purpose of this function is 
+){                                                          #The purpose of this function is
                                                             #to obtain L and K based on
     MCMC <- FALSE                                           #multivariate normal.
                                                             #MCMC part is not available now.
     if (is.null(off.diag)) off.diag <- ifelse(Phase1 == TRUE, - 1 /(m - 1), 1 / (m + 1))
-    
-    
-    corr.P <- corr.f(m = m, off.diag = off.diag)  
+
+
+    corr.P <- corr.f(m = m, off.diag = off.diag)
 
     pu <- 1 - FAP
-    
+
     #Y <- sqrt(rchisq(maxsim, df = nu))
-    
+
     if (MCMC == TRUE) {
-    
+
         #MVN.Q.Gibbs.Sampling(
-        #    pu, 
-        #    MCMC.maxsim, 
-        #    corr.P, 
-        #    tails = alternative, 
-        #    burn = MCMC.burn, 
+        #    pu,
+        #    MCMC.maxsim,
+        #    corr.P,
+        #    tails = alternative,
+        #    burn = MCMC.burn,
         #    search.interval = MCMC.search.interval
         #)
-    
-        
-    
+
+
+
     } else {
 
 
@@ -235,11 +235,11 @@ get.cc.mvn <- function(
         )$root
 
     }
-    
+
     L <- K / c4.f(nu) * sqrt(m / (m - 1))
-    
+
     list(L = L, K = K)
-    
+
 
 }
 
@@ -264,14 +264,14 @@ get.cc <- function(
                                                     #Multivariate normal is so time-consuming
                                                     #that I do not recommend.
     Phase1 <- TRUE
-    
-    
+
+
     if (is.null(off.diag)) off.diag <- ifelse(Phase1 == TRUE, - 1 /(m - 1), 1 / (m + 1))
 
     is.int <- ifelse(nu == round(nu), 1, 0)
 
     if (method == 'direct' & is.int == 1) {                       #using multivariate T to obtain L and K
-    
+
         get.cc.mvt(
             m = m
             ,nu = nu
@@ -281,11 +281,11 @@ get.cc <- function(
             ,alternative = alternative
             ,maxiter = maxiter
         )
-    
+
     } else {                                       #using multivariate normal to obtain L and K
-    
+
         if (is.int == 0 & method == 'direct') cat('Nu is not an integer. The indirect method will be conducted.', '\n')
-    
+
         get.cc.mvn(
             m = m
             ,nu = nu
@@ -298,7 +298,7 @@ get.cc <- function(
             ,maxiter = maxiter
             ,tol = indirect.tol
         )
-    
+
     }
 
 
@@ -322,26 +322,26 @@ get.FAP0 <- function(
     method <- 'direct'
 
     Phase1 <- TRUE
-    
+
     is.int <- ifelse(nu == round(nu), 1, 0)
-    
+
     if (is.null(off.diag)) off.diag <- ifelse(Phase1 == TRUE, - 1 /(m - 1), 1 / (m + 1))
-    
+
     corr.P <- corr.f(m = m, off.diag = off.diag)
-    
+
     L <- K / c4.f(nu) * sqrt(m / (m - 1))
-    
+
 
     if (method == 'direct' & is.int == 1) {                       #using multivariate T to obtain L and K
-    
+
         ll <- rep(L, m)
-        
+
         ifelse(
             alternative == '2-sided',
             1 - pmvt(lower = -ll, upper = ll, df = nu, corr = corr.P, algorithm = TVPACK, abseps = 1e-12),
             1 - pmvt(lower = -Inf, upper = ll, df = nu, corr = corr.P, algorithm = TVPACK, abseps = 1e-12)
         )
-    
+
     }
 
 
@@ -354,9 +354,9 @@ get.FAP0 <- function(
 ####################################################################################################################################################
 
 MNCC <- function(
-			X, 
-			FAP = 0.1, 
-			off.diag = NULL, 
+			X,
+			FAP = 0.1,
+			off.diag = NULL,
 			alternative = '2-sided',
 			plot.option = TRUE,
             maxiter = 10000,
@@ -370,7 +370,7 @@ MNCC <- function(
 	n <- dim(X)[2]
 
 	X.bar <- rowMeans(X)
-	
+
 	X.bar.bar <- mean(X)
 
 	sigma.v <- sqrt(sum(apply(X, 1, var)) / m) / c4.f(m * (n - 1))
@@ -381,21 +381,21 @@ MNCC <- function(
 	UCL <- X.bar.bar + k * sigma.v / sqrt(n)
 
 	if (plot.option == TRUE){
-	
+
 		plot(c(1, m), c(LCL, UCL), xaxt = "n", xlab = 'Subgroup', ylab = 'Sample Means', type = 'n')
-	
+
 		axis(side = 1, at = 1:m)
-		
+
 		points(1:m, X.bar, type = 'o')
 		points(c(-1, m + 2), c(LCL, LCL), type = 'l', col = 'red')
 		points(c(-1, m + 2), c(UCL, UCL), type = 'l', col = 'red')
 		points(c(-1, m + 2), c(X.bar.bar, X.bar.bar), type = 'l', col = 'blue')
 		text(round(m * 0.8), UCL, paste('UCL = ', round(UCL, 4)), pos = 1)
 		text(round(m * 0.8), LCL, paste('LCL = ', round(LCL, 4)), pos = 3)
-		
-	
+
+
 	}
-	
+
 	list(CL = X.bar.bar, LCL = LCL, UCL = UCL)
 
 }
@@ -430,7 +430,7 @@ MNCC.data <- function(){
 		74.004	,	73.999	,	73.99	,	74.006	,	74.009	,
 		74.01	,	73.989	,	73.99	,	74.009	,	74.014	,
 		74.015	,	74.008	,	73.993	,	74	,	74.01	,
-		73.982	,	73.984	,	73.995	,	74.017	,	74.013	
+		73.982	,	73.984	,	73.995	,	74.017	,	74.013
 
 	), ncol = 5, byrow = T)
 }

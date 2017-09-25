@@ -1,4 +1,5 @@
 import('mvtnorm')
+import('adehabitatLT')
 
 importFrom("stats", "dchisq", "integrate", "uniroot")
 importFrom("graphics", "axis", "plot", "points", "text")

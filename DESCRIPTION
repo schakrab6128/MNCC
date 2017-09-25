@@ -10,5 +10,5 @@ Description: The utility of this package is in building Shewhart-type control ch
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-Depends: R (>= 3.3.0), mvtnorm
+Depends: R (>= 3.3.0), mvtnorm, adehabitatLT
 URL: https://github.com/bolus123/MNCC
