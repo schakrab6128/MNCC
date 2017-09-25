@@ -6,7 +6,7 @@ Authors@R: c(person("Yuhui", "Yao", role = c("aut", "cre"),
                     email = "yyao17@crimson.ua.edu"))
 Maintainer: Yuhui Yao <yyao17@crimson.ua.edu>
 Author: Yuhui Yao [aut]
-Description: The utility of this package is in building Shewhart-type control chart by multivariate normal distribution model.
+Description: The utility of this package is in building Shewhart-type control chart by multivariate normal distribution model.FORKFORK
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
